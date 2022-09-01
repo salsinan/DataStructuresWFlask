@@ -6,6 +6,8 @@ from sqlalchemy.engine import Engine
 from flask import Flask, request, jsonify
 from flask_sqlalchemy import SQLAlchemy
 
+import linked_list
+
 # app
 app = Flask(__name__)
 
@@ -56,17 +58,65 @@ def create_user():
     db.session.commit()
     return jsonify({"message": "User created"}), 200
 
+# linked list
 @app.route("/user/descending_id", methods=["GET"])
 def get_all_users_descending():
-    pass
+    users = User.query.all() # ascending order by default
+    all_users_ll = linked_list.LinkedList()
+
+    # reorder list of users
+    for user in users:
+        all_users_ll.insert_beginning(
+            {
+                "id": user.id,
+                "name": user.name,
+                "email": user.email,
+                "address": user.address,
+                "phone": user.phone
+            }
+        )
+    
+    return jsonify(all_users_ll.to_list()), 200
 
 @app.route("/user/ascending_id", methods=["GET"])
 def get_all_users_ascending():
-    pass
+    users = User.query.all()
+    all_users_ll = linked_list.LinkedList()
+
+    # this part is unnecessary, since users are already in ascending order. Its purpose is only to demonstrate the difference between inserting at the beginning vs at the end of a linked list
+    for user in users:
+        all_users_ll.insert_at_end(
+            {
+                "id": user.id,
+                "name": user.name,
+                "email": user.email,
+                "address": user.address,
+                "phone": user.phone
+            }
+        )
+    
+    return jsonify(all_users_ll.to_list()), 200
 
 @app.route("/user/<user_id>", methods=["GET"])
 def get_one_user(user_id):
-    pass
+    users = User.query.all()
+
+    all_users_ll = linked_list.LinkedList()
+
+    for user in users:
+        all_users_ll.insert_beginning(
+            {
+                "id": user.id,
+                "name": user.name,
+                "email": user.email,
+                "address": user.address,
+                "phone": user.phone
+            }
+        )
+
+    user = all_users_ll.get_user_by_id(user_id)
+    
+    return jsonify(user), 200
 
 @app.route("/user/<user_id>", methods=["DELETE"])
 def delete_user(user_id):
